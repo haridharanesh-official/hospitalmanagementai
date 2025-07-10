@@ -59,8 +59,8 @@ Hospital_Automation_AI_Nurse_Chatbot/
 
 #### 🔹 1. Clone or unzip project
 ```bash
-unzip Hospital_Automation_AI_Nurse_Chatbot_Final.zip
-cd Hospital_Automation_AI_Nurse_Chatbot
+unzip hospitalmanagementai.zip
+cd hospitalmanagementai
 ```
 
 #### 🔹 2. Create virtual environment
