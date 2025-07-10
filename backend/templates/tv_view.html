@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Central Monitoring Screen</title>
+  <meta http-equiv="refresh" content="15">
+  <style>
+    body { background: #000; color: white; font-family: sans-serif; margin: 0; }
+    .patient { padding: 20px; border-bottom: 1px solid #444; }
+    .alert { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;">🛏️ Patient Monitoring (Auto-Refresh)</h1>
+  <div id="patients">
+    <!-- Patient data will be injected here via AJAX -->
+  </div>
+
+  <script>
+    async function loadPatients() {
+      const res = await fetch("/api/vitals");
+      const data = await res.json();
+      const patientsDiv = document.getElementById("patients");
+      patientsDiv.innerHTML = "";
+      data.forEach(p => {
+        const alert = p.spo2 < 92 || p.temperature > 100.4;
+        patientsDiv.innerHTML += `
+          <div class="patient ${alert ? 'alert' : ''}">
+            <h2>${p.patient_id} (${p.name || 'Unassigned'})</h2>
+            ❤️ ${p.heart_rate} BPM | 🌬️ SpO₂ ${p.spo2}% | 🌡️ ${p.temperature}°F | 🍺 Alcohol: ${p.alcohol_level}<br>
+            <small>${p.timestamp}</small>
+          </div>
+        `;
+      });
+    }
+
+    loadPatients();
+    setInterval(loadPatients, 15000); // refresh every 15 sec
+  </script>
+</body>
+</html>

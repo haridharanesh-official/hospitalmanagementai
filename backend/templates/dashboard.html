@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hospital Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f8fa;
+    }
+    header {
+      background: #0b5ed7;
+      color: white;
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .dashboard {
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+    }
+    .card h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    .alert {
+      color: red;
+      font-weight: bold;
+    }
+    canvas {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>?? Smart Hospital Dashboard</div>
+    <div id="time"></div>
+  </header>
+
+  <div class="dashboard" id="dashboard">
+    <!-- Cards injected here -->
+  </div>
+
+  <script>
+    async function fetchVitals() {
+      const res = await fetch("/api/vitals");
+      const data = await res.json();
+      return data;
+    }
+
+    function renderDashboard(data) {
+      const container = document.getElementById("dashboard");
+      container.innerHTML = "";
+      data.forEach((p, i) => {
+        const isAlert = p.spo2 < 92 || p.temperature > 100.4;
+        container.innerHTML += `
+          <div class="card">
+            <h3>${p.name || 'Unassigned'} (${p.patient_id})</h3>
+            <p><strong>Room:</strong> ${p.room || 'N/A'} | <strong>Age:</strong> ${p.age || 'N/A'}</p>
+            <p>?? <strong>${p.heart_rate} BPM</strong></p>
+            <p>??? <strong class="${p.spo2 < 92 ? 'alert' : ''}">${p.spo2}% SpO2</strong></p>
+            <p>??? <strong class="${p.temperature > 100.4 ? 'alert' : ''}">${p.temperature} �F</strong></p>
+            <p>?? Alcohol Level: <strong>${p.alcohol_level}</strong></p>
+            <p><small>Last updated: ${p.timestamp}</small></p>
+          </div>
+        `;
+      });
+    }
+
+    function updateTime() {
+      const now = new Date();
+      document.getElementById("time").innerText = now.toLocaleString();
+    }
+
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    async function update() {
+      const vitals = await fetchVitals();
+      renderDashboard(vitals);
+    }
+
+    update();
+    setInterval(update, 1500); // Refresh every 1 sec
+  </script>
+</body>
+</html>
